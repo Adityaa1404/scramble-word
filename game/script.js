@@ -1,23 +1,69 @@
-const ROUNDS = [
+const BASE_ROUNDS = [
   {
     id: 1,
     name: "Ronde 1: D-A-P-U-R-S",
     letters: ["D", "A", "P", "U", "R", "S"],
-    words: ["DAPUR", "PADUS", "PADU", "RUPA", "RUSA", "SUAP", "APUS", "DUA", "PAS", "DUS"],
+    words: [
+      "DAPUR", "SUDRA", "DARU", "ARUS","DUPA", "PUAS", "RUPA", "RUSA", "SAPU",
+      "SURA", "UDAR", "URAP", "ADU", "ARU", "DUA", "PAS", "RAS", "RUA",
+      "SUP", "UDA"
+    ]
   },
   {
     id: 2,
     name: "Ronde 2: B-A-N-G-S-A",
     letters: ["B", "A", "N", "G", "S", "A"],
-    words: ["BANGSA", "BAGAN", "BAGAS", "SABAN", "BANG", "NAGA", "SAGA", "BANA", "GAS", "PAS"],
+    words: [
+      "BANGSA", "ANGSA","BAGAN", "BANAS", "BANGA", "GANAS", "SABAN", "BAGA", "BANA",
+      "BANG", "BASA", "GANA", "NAGA", "NASA", "SAGA", "SANA", "SANG", "ASA",
+      "ANA", "BAN", "BAS", "GAS", "NAS"
+    ]
   },
   {
     id: 3,
     name: "Ronde 3: K-E-R-T-A-S",
     letters: ["K", "E", "R", "T", "A", "S"],
-    words: ["KERTAS", "KARET", "KERAS", "RETAS", "SERAK", "KERA", "SETA", "RAK", "ERA", "TAS"],
-  },
+    words: [
+      "KERTAS", "KERAS", "KERAT", "KERTA", "RETAK", "SERAT", "SERTA", "TERAS",
+      "ERAT", "KERA", "REKA", "RESA", "SATU", "SETA", "TARA", "TEKA", "TERA",
+      "TREK", "AKU", "ARE", "ERA", "KAS", "RAK", "RAS", "SET", "TAK", "TAS",
+      "TER"
+    ]
+  }
 ];
+
+const WORD_BANK = [...new Set(BASE_ROUNDS.flatMap((round) => round.words))].sort(
+  (a, b) => b.length - a.length || a.localeCompare(b)
+);
+
+function getPossibleWords(letters, dictionary) {
+  const letterCounts = {};
+
+  letters.forEach((char) => {
+    letterCounts[char] = (letterCounts[char] ?? 0) + 1;
+  });
+
+  return [...new Set(
+    dictionary.filter((word) => {
+      if (word.length < 2) return false;
+
+      const wordCounts = {};
+      for (const char of word) {
+        wordCounts[char] = (wordCounts[char] ?? 0) + 1;
+        if ((letterCounts[char] ?? 0) < wordCounts[char]) {
+          return false;
+        }
+      }
+
+      return true;
+    })
+  )].sort((a, b) => b.length - a.length || a.localeCompare(b));
+}
+
+const ROUNDS = BASE_ROUNDS.map((round) => ({
+  ...round,
+  words: getPossibleWords(round.letters, WORD_BANK)
+}));
 
 const state = {
   roundIndex: 0,
